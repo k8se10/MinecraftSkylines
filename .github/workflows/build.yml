@@ -1,56 +1,71 @@
-name: Build Minecraft Skylines
+plugins {
+    id 'fabric-loom' version '1.5-SNAPSHOT'
+    id 'maven-publish'
+    id 'com.github.ben-manes.versions' version '0.51.0'
+}
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
-  workflow_dispatch:
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+group = 'com.minecraftskylines'
+version = '0.0.5a'
+archivesBaseName = 'minecraft-skylines'
 
-    steps:
-      # 1. Checkout source
-      - name: Checkout repository
-        uses: actions/checkout@v4
+repositories {
+    mavenCentral()
+    maven { url = "https://maven.fabricmc.net/" }
+}
 
-      # 2. Set up Java 17 (Fabric 1.20.4 requirement)
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: gradle
+def fabricApiVersion = System.getenv("FABRIC_API_VERSION") ?: "0.91.0+1.20.4"
+def yarnMappingsVersion = System.getenv("YARN_MAPPINGS_VERSION") ?: "1.20.4+build.3"
+def fabricLoaderVersion = System.getenv("FABRIC_LOADER_VERSION") ?: "0.15.6"
+def minecraftVersion = yarnMappingsVersion.split("\\+")[0] // extract MC version from yarn version
 
-      # 3. Grant execute permission for Gradle wrapper
-      - name: Make gradlew executable
-        run: chmod +x gradlew
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraftVersion}"
+    mappings "net.fabricmc:yarn:${yarnMappingsVersion}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${fabricLoaderVersion}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricApiVersion}"
+}
 
-      # 4. Build the mod jar
-      - name: Build with Gradle
-        run: ./gradlew build
+loom {
+    splitEnvironmentSourceSets()
 
-      # 5. Upload compiled jar as an artifact
-      - name: Upload mod jar
-        uses: actions/upload-artifact@v4
-        with:
-          name: minecraft-skylines-alpha-jar
-          path: build/libs/*.jar
+    mods {
+        minecraft_skylines {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
 
-      # 6. Upload full source & assets as artifact (optional)
-      - name: Upload full source package
-        uses: actions/upload-artifact@v4
-        with:
-          name: minecraft-skylines-source
-          path: |
-            src/
-            assets/
-            gradlew
-            gradlew.bat
-            build.gradle
-            settings.gradle
-            fabric.mod.json
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    it.options.release = 17
+}
+
+processResources {
+    inputs.property "version", project.version
+    filteringCharset = "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${archivesBaseName}" }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}
