@@ -1,71 +1,47 @@
-plugins {
-    id 'fabric-loom' version '1.5-SNAPSHOT'
-    id 'maven-publish'
-    id 'com.github.ben-manes.versions' version '0.51.0'
-}
+name: Build Minecraft Skylines
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 
-group = 'com.minecraftskylines'
-version = '0.0.5a'
-archivesBaseName = 'minecraft-skylines'
+env:
+  JAVA_VERSION: 17
+  FABRIC_API_VERSION: 0.91.0+1.20.4
+  YARN_MAPPINGS_VERSION: 1.20.4+build.3
+  FABRIC_LOADER_VERSION: 0.15.6
 
-repositories {
-    mavenCentral()
-    maven { url = "https://maven.fabricmc.net/" }
-}
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-def fabricApiVersion = System.getenv("FABRIC_API_VERSION") ?: "0.91.0+1.20.4"
-def yarnMappingsVersion = System.getenv("YARN_MAPPINGS_VERSION") ?: "1.20.4+build.3"
-def fabricLoaderVersion = System.getenv("FABRIC_LOADER_VERSION") ?: "0.15.6"
-def minecraftVersion = yarnMappingsVersion.split("\\+")[0] // extract MC version from yarn version
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-dependencies {
-    minecraft "com.mojang:minecraft:${minecraftVersion}"
-    mappings "net.fabricmc:yarn:${yarnMappingsVersion}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${fabricLoaderVersion}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricApiVersion}"
-}
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
 
-loom {
-    splitEnvironmentSourceSets()
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: wrapper
 
-    mods {
-        minecraft_skylines {
-            sourceSet sourceSets.main
-            sourceSet sourceSets.client
-        }
-    }
-}
+      - name: Make gradlew executable
+        run: chmod +x gradlew
 
-tasks.withType(JavaCompile).configureEach {
-    it.options.encoding = "UTF-8"
-    it.options.release = 17
-}
+      - name: Build with Gradle
+        run: ./gradlew build -PfabricApiVersion=${{ env.FABRIC_API_VERSION }} -PyarnMappingsVersion=${{ env.YARN_MAPPINGS_VERSION }} -PfabricLoaderVersion=${{ env.FABRIC_LOADER_VERSION }}
 
-processResources {
-    inputs.property "version", project.version
-    filteringCharset = "UTF-8"
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
-    }
-}
-
-jar {
-    from("LICENSE") {
-        rename { "${it}_${archivesBaseName}" }
-    }
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
-    repositories {
-        mavenLocal()
-    }
-}
+      - name: Upload mod jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: minecraft-skylines-alpha-jar
+          path: build/libs/*.jar
