@@ -1,0 +1,1 @@
+public enum ZoneType { RESIDENTIAL, COMMERCIAL, INDUSTRIAL }
