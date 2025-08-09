@@ -29,16 +29,13 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: temurin
 
-      - name: Set up Gradle
+      - name: Install Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          gradle-version: wrapper
-
-      - name: Make gradlew executable
-        run: chmod +x gradlew
+          gradle-version: 8.5
 
       - name: Build with Gradle
-        run: ./gradlew build -PfabricApiVersion=${{ env.FABRIC_API_VERSION }} -PyarnMappingsVersion=${{ env.YARN_MAPPINGS_VERSION }} -PfabricLoaderVersion=${{ env.FABRIC_LOADER_VERSION }}
+        run: gradle build -PfabricApiVersion=${{ env.FABRIC_API_VERSION }} -PyarnMappingsVersion=${{ env.YARN_MAPPINGS_VERSION }} -PfabricLoaderVersion=${{ env.FABRIC_LOADER_VERSION }}
 
       - name: Upload mod jar
         uses: actions/upload-artifact@v4
