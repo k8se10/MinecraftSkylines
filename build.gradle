@@ -35,7 +35,14 @@ dependencies {
     minecraft "com.mojang:minecraft:${minecraftVersion}"
     mappings "net.fabricmc:yarn:${yarnMappingsVersion}:v2"
     modImplementation "net.fabricmc:fabric-loader:${fabricLoaderVersion}"
-        modImplementation files(project.layout.projectDirectory.file("libs/fabric-api-0.97.8+1.20.4.jar"))
+            // Lazy evaluation for Gradle 9 compatibility
+    modImplementation(files({
+        def jarFile = project.file("libs/fabric-api-0.97.8+1.20.4.jar")
+        if (!jarFile.exists()) {
+            throw new GradleException("Fabric API jar not found at ${jarFile}. Please download it before building.")
+        }
+        jarFile
+    }))
 }
 
 loom {
