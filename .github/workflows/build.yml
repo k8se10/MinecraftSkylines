@@ -1,4 +1,4 @@
-name: Build Minecraft Skylines Mod
+name: Build Minecraft Skylines
 
 on:
   push:
@@ -17,17 +17,13 @@ jobs:
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
-        java-version: '17'
-        distribution: 'temurin'
+        java-version: 17
+        distribution: temurin
 
-    - name: Install Gradle
-      uses: gradle/gradle-build-action@v2
-
-    - name: Download Fabric API jar
+    - name: Prepare Fabric API
       run: |
         mkdir -p libs
-        curl -L -o libs/fabric-api-0.97.8+1.20.4.jar \
-          https://cdn.modrinth.com/data/P7dR8mSH/versions/FZyqNw0D/fabric-api-0.97.8%2B1.20.4.jar
+        curl -L -o libs/fabric-api-0.97.8+1.20.4.jar https://cdn.modrinth.com/data/P7dR8mSH/versions/FZyqNw0D/fabric-api-0.97.8%2B1.20.4.jar
 
-    - name: Build Fabric mod
-      run: gradle build remapJar
+    - name: Build
+      run: ./gradlew build remapJar
