@@ -11,7 +11,7 @@ on:
 
 env:
   JAVA_VERSION: 17
-  FABRIC_API_VERSION: 0.97.8+1.20.4
+  FABRIC_API_VERSION: 0.91.0+1.20.4
   YARN_MAPPINGS_VERSION: 1.20.4+build.3
   FABRIC_LOADER_VERSION: 0.15.6
 
@@ -34,11 +34,11 @@ jobs:
         with:
           gradle-version: 8.5
 
-      - name: Build with Gradle
-        run: gradle build -PfabricApiVersion=${{ env.FABRIC_API_VERSION }} -PyarnMappingsVersion=${{ env.YARN_MAPPINGS_VERSION }} -PfabricLoaderVersion=${{ env.FABRIC_LOADER_VERSION }}
+      - name: Build Fabric mod
+        run: gradle build remapJar -PfabricApiVersion=${{ env.FABRIC_API_VERSION }} -PyarnMappingsVersion=${{ env.YARN_MAPPINGS_VERSION }} -PfabricLoaderVersion=${{ env.FABRIC_LOADER_VERSION }}
 
-      - name: Upload mod jar
+      - name: Upload compiled jars
         uses: actions/upload-artifact@v4
         with:
-          name: minecraft-skylines-alpha-jar
+          name: minecraft-skylines-build
           path: build/libs/*.jar
