@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "minecraft_skylines",
+  "version": "${version}",
+  "name": "Minecraft Skylines",
+  "description": "A Cities: Skylines-inspired city builder for Minecraft. Build zones, watch your city grow, and manage resources.",
+  "authors": [
+    "YourNameHere"
+  ],
+  "contact": {
+    "homepage": "https://github.com/YourUsername/minecraft-skylines",
+    "sources": "https://github.com/YourUsername/minecraft-skylines"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.minecraftskylines.MinecraftSkylines"
+    ],
+    "client": [
+      "com.minecraftskylines.client.MinecraftSkylinesClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.15.6",
+    "fabric": "*",
+    "minecraft": "1.20.4",
+    "java": ">=17"
+  }
+}
