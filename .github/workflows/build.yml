@@ -1,0 +1,56 @@
+name: Build Minecraft Skylines
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout source
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up Java 17 (Fabric 1.20.4 requirement)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      # 3. Grant execute permission for Gradle wrapper
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      # 4. Build the mod jar
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      # 5. Upload compiled jar as an artifact
+      - name: Upload mod jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: minecraft-skylines-alpha-jar
+          path: build/libs/*.jar
+
+      # 6. Upload full source & assets as artifact (optional)
+      - name: Upload full source package
+        uses: actions/upload-artifact@v4
+        with:
+          name: minecraft-skylines-source
+          path: |
+            src/
+            assets/
+            gradlew
+            gradlew.bat
+            build.gradle
+            settings.gradle
+            fabric.mod.json
