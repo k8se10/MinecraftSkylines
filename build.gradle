@@ -71,7 +71,7 @@ publishing {
             from components.java
         }
     }
-    repositories {
+repositories {
     mavenCentral()
     maven { url = "https://maven.fabricmc.net/" }
     maven { url = "https://maven.terraformersmc.com/" } // Mod Menu + related
