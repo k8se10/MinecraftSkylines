@@ -16,7 +16,7 @@ repositories {
     maven { url = "https://maven.fabricmc.net/" }
 }
 
-def fabricApiVersion = System.getenv("FABRIC_API_VERSION") ?: "0.91.0+1.20.4"
+def fabricApiVersion = System.getenv("FABRIC_API_VERSION") ?: "0.97.8+1.20.4"
 def yarnMappingsVersion = System.getenv("YARN_MAPPINGS_VERSION") ?: "1.20.4+build.3"
 def fabricLoaderVersion = System.getenv("FABRIC_LOADER_VERSION") ?: "0.15.6"
 def minecraftVersion = yarnMappingsVersion.split("\\+")[0]
